@@ -5,7 +5,7 @@
 1) Develop an internal tool for UnderstadningTutors to manage their invoicing of parents (time for this is is main marginal cost of operations)
 2) In doing so, prototype a porduct for my future Saas start up.
 
-**File 1)'Add new tutor hours: **
+**File 1)'Add new tutor hours:**
 
 Script manages and invoices tutoring lessons using Google Sheets:
 
@@ -18,6 +18,22 @@ Script manages and invoices tutoring lessons using Google Sheets:
 **TODO** add export of master database tot an export.
 
 
-**Key external links: **
+**File 2) Invoice_csv_to_pdf:**
+
+Takes invoice data - identified as unpaid - from _Add new tutors hours script_ and generates PDF invoices for tutoring services + exports invoice records for databasing
+
+**Invoice Generation**: Processes unpaid invoices for each student, creating a detailed PDF invoice with a data table and branding elements.
+**Data Processing**: Compiles invoice records into a DataFrame, then exports it as a CSV file for record-keeping.
+**Execution**: The `main()` function orchestrates the process, using data from a previously run script (`add_new_tutor_hours`).
+
+
+**File 3) update invoice recrds** 
+
+Using google API, adds new invoice records from _invoice_csv_to_pdf_ script to master file on google drive , via google sheets API.
+
+Invoice data for a given sutdent and month are generated using a 'Permanent ID
+
+
+**Key external links:**
 How to set up google API credentials: https://mljar.com/blog/authenticate-python-google-sheets-service-account-json-credentials/#:~:text=Creating%20JSON%20file%20with%20credentials,Download%20JSON%20file%20with%20credentials
 
