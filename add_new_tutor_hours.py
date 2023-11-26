@@ -91,12 +91,14 @@ def get_invoice_csv_data():
             invoice_mastersheet_data_df['Student Name'] == student]
 
     for student in student_invoice_dfs:
+        #df with all invoice items for a student in master db
         student_df = student_invoice_dfs[student]
         unique_months = student_df['Month'].unique()
 
         students_unpaid_monthly_dfs = {}
 
         for month in unique_months:
+            '''unpaid invoices split by month'''
             # Filter for the specific month and where 'Paid' is not 1
             student_month_df = student_df[(student_df['Month'] == month)]
             student_month_unpaid_df = student_month_df[student_month_df['Paid'] == '']

@@ -3,10 +3,10 @@ import gspread
 import numpy as np
 
 # Import the necessary module that contains the function to generate the invoice data DataFrame
-import invoice_csv_to_pdf_modular
+import invoice_csv_to_pdf
 
-invoice_csv_to_pdf_modular.main()
-new_invoice_records_df = invoice_csv_to_pdf_modular.all_invoice_records_df
+invoice_csv_to_pdf.main()
+new_invoice_records_df = invoice_csv_to_pdf.all_invoice_records_df
 
 # Service account setup
 sa = gspread.service_account(filename="utautoinvoicing_service_account.json")
