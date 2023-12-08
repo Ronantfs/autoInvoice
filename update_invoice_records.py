@@ -32,11 +32,9 @@ def add_new_invoice_records_to_master():
     # Convert the updated dataframe to a list of lists for uploading to Google Sheets
     updated_master_data_to_upload = [updated_mastersheet_data_df.columns.tolist()] + updated_mastersheet_data_df.values.tolist()
 
-    # Clear the existing data in the Master Data Base sheet
-    UT_Master_Invoice_records_Sheet.clear() #TODO DON'T CLEAR HEADERS
-
     # Update the Master Data Base sheet with the new data
-    UT_Master_Invoice_records_Sheet.update('A1', updated_master_data_to_upload)
+    UT_Master_Invoice_records_Sheet.update('A2', updated_master_data_to_upload)
+    UT_Master_Invoice_records_Sheet.delete_rows(2)
     print('New Hours Added')
 
 

@@ -68,7 +68,7 @@ def draw_static_elements(canvas, width, height, student, tutor, total_fee, month
 
     #left tex (bank stuff)
     canvas.setFont("Helvetica-Bold", 18)
-    canvas.drawString(75, height - 220, f"{student} Understanding Tutors Tuiton")
+    canvas.drawString(75, height - 220, f"{student} Understanding Tutors Tuition")
     canvas.setFont("Helvetica-Bold", 16)
     canvas.drawString(75, height - 260, f"Total Invoice: £{total_fee}")
     # Draw a horizontal line
@@ -170,6 +170,7 @@ def process_data_for_student(student, student_invoice_dfs):
         month_df['Lesson Fee'] = month_df['Lesson Fee'].astype(str)
 
         # Additional data for invoice record
+        month_df['Duration (Hours)'] = pd.to_numeric(month_df['Duration (Hours)'], errors='coerce')
         total_hours = month_df['Duration (Hours)'].sum()
         invoice_month = month_df['Lesson Date'].iloc[0]
         invoice_path = os.path.join(INVOICES_FOLDER_PATH, f"{invoice_name}.pdf")
@@ -205,6 +206,7 @@ def main():
     all_invoices_records = pd.DataFrame()
 
     for student in all_students_unpaid_monthly_dfs:
+        print(f'processing {student} invoices...')
         student_invoices = process_data_for_student(student, all_students_unpaid_monthly_dfs[student])
         all_invoices_records = pd.concat([all_invoices_records, student_invoices], ignore_index=True)
 

@@ -21,6 +21,9 @@ mastersheet_data_df = pd.DataFrame(mastersheet_data[1:], columns=mastersheet_dat
 list_of_ut_tutors = [
     'Ronan',
     'Aarif',
+    'Will',
+    'Nikhil',
+    'Gabba'
 ]
 
 def get_all_tutors_lesson_log_df():
@@ -29,6 +32,7 @@ def get_all_tutors_lesson_log_df():
     all_tutors_lesson_log_dfs_list = []
 
     for tutor in list_of_ut_tutors:
+        print(f'getting {tutor} hours...')
         # Get tutor lesson log sheet and add to list
         file_name = f'{tutor} Lesson Log'
         tutorLogTestSheet = sa.open(file_name)
