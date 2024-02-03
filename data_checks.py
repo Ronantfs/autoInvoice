@@ -16,7 +16,7 @@ def check_invoice_master_data():
 
     invoice_mastersheet_data = UT_Master_Data_Invoice_Sheet.get_all_values()
     invoice_mastersheet_data_df = pd.DataFrame(invoice_mastersheet_data[1:],
-                                               columns=invoice_mastersheet_data[0]).dropna(subset=['Student Name'])
+                                               columns=invoice_mastersheet_data[0]).dropna(subset=['Student'])
 
     #check for missing refence values:
 

@@ -15,7 +15,7 @@ def get_master_data():
 
     # Load data from the Master Data Base sheet
     mastersheet_data = UT_Master_Data_Base_Sheet.get_all_values()
-    mastersheet_data_df = pd.DataFrame(mastersheet_data[1:], columns=mastersheet_data[0]).dropna(subset=['Student Name'])
+    mastersheet_data_df = pd.DataFrame(mastersheet_data[1:], columns=mastersheet_data[0]).dropna(subset=['Student'])
 
     return (mastersheet_data_df, UT_Master_Data_Base_Sheet)
 
@@ -34,8 +34,8 @@ def get_all_tutors_lesson_log_df(list_of_ut_tutors):
         wks = tutorLogTestSheet.worksheet("Lesson Log")
         log_data = wks.get_all_values()
         log_data_df = pd.DataFrame(log_data[1:], columns=log_data[0])
-        log_data_df['Student Name'].replace('', pd.NA, inplace=True)
-        log_data_df = log_data_df.dropna(subset=['Student Name'])
+        log_data_df['Student'].replace('', pd.NA, inplace=True)
+        log_data_df = log_data_df.dropna(subset=['Student'])
         all_tutors_lesson_log_dfs_list.append(log_data_df)
 
     # Concatenate all dataframes in the list
@@ -72,18 +72,18 @@ def process_master_data_to_df():
         """Get DataFrame from a specified Google Sheets worksheet."""
         worksheet = sheets_object.worksheet(sheet_name)
         data = worksheet.get_all_values()
-        return pd.DataFrame(data[1:], columns=data[0]).dropna(subset=['Student Name'])
+        return pd.DataFrame(data[1:], columns=data[0]).dropna(subset=['Student'])
 
     def filter_data_for_student(df, student_name):
         """Filter the DataFrame for a given student."""
-        return df[df['Student Name'] == student_name]
+        return df[df['Student'] == student_name]
 
     def process_invoice_data_master(df):
         """Process invoice data and categorize by month and payment type."""
         students_monthly_dfs = {}
         students_monthly_dfs_pre_paid = {}
 
-        for student in df['Student Name'].unique():
+        for student in df['Student'].unique():
             student_df = filter_data_for_student(df, student)
 
             student_hourly_dfs = {}
@@ -115,7 +115,16 @@ def process_master_data_to_df():
         """Process prepaid records data."""
         prepaid_blocks = {}
 
-        for student in df['Student Name'].unique():
+        #filter dateframe for select headers:
+        df = df[['Student',
+                 "Received",
+                 "Amount, £",
+                 "#Hours",
+                 "Hourly Rate",
+                 "Block Number",
+                 "Block ID",]]
+
+        for student in df['Student'].unique():
             student_records = filter_data_for_student(df, student)
             if not student_records.empty:
                 prepaid_blocks[student] = student_records

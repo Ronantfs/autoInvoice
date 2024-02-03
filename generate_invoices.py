@@ -45,7 +45,7 @@ def draw_static_elements(canvas, width, height, student, tutor, total_fee, month
     if invoice_type == 'hourly':
         canvas.drawString(75, height - 260, f"Total Invoice: £{total_fee}")
     if invoice_type == 'prepaid':
-        canvas.drawString(75, height - 260, f"Total Hours: {total_fee}")
+        canvas.drawString(75, height - 260, f"Total Hours This Month: {total_fee}")
     # Draw a horizontal line
 
     #bank details with divider lines
@@ -82,6 +82,59 @@ def draw_static_elements(canvas, width, height, student, tutor, total_fee, month
     canvas.setFillColor(utils.ut_purple)
     canvas.drawString(75, 35, "English History French Spanish")
 
+
+def draw_static_elements_pre_paid(canvas, width, height, student, tutor, total_fee, month, invoice_number, invoice_type):
+    '''Draws static elements (like logo, text) on the canvas'''
+
+    # Draws static elements (like logo, text) on the canvas
+    canvas.drawImage(LOGO_PATH, 40, height - 180, width=120, height=160, mask='auto')
+
+    #top right corner
+    canvas.setFont("Helvetica-Bold", 24)
+    canvas.drawRightString(width - 50, height - 50, "UNDERSTANDING TUTORS")
+    canvas.setFont("Helvetica-Bold", 12)
+    canvas.setFillColor(colors.lightgrey)
+    canvas.drawRightString(width - 50, height - 70, "Premium Online STEM & Humanities Tuition")
+
+    #right text
+    canvas.setFillColor(colors.black)
+    canvas.drawRightString(width - 50, height - 155, "Ronan Twomey Friedlander")
+    canvas.drawRightString(width - 50, height - 170, f"Understanding Tutors Invoice")
+    canvas.drawRightString(width - 50, height - 185, f"{invoice_number}")
+    canvas.drawRightString(width - 50, height - 200, f"{month}")
+
+    #left tex (bank stuff)
+    canvas.setFont("Helvetica-Bold", 18)
+    canvas.drawString(75, height - 220, f"{student} Understanding Tutors Tuition")
+    canvas.setFont("Helvetica-Bold", 16)
+    canvas.drawString(75, height - 260, f"Total Hours this month: {total_fee}")
+
+
+    #bank details with divider lines
+    #lines
+    x_start = 75  # Start x-coordinate
+    y_position = height - 270  # Y-coordinate for the line
+    x_end = width / 2.5  # End x-coordinate, adjust as needed
+    line_thickness = 0.5  # Thickness of the line
+
+    canvas.setLineWidth(line_thickness)
+    canvas.setStrokeColor(utils.ut_lgreen)
+    canvas.line(x_start, y_position, x_end, y_position)
+
+
+    #TODO: inerst table of pre paid lessons
+    canvas.setFont("Helvetica-Bold", 14)
+
+    # footer
+    canvas.setFont("Helvetica-Bold", 18)
+    canvas.setFillColor(colors.lightblue)
+    canvas.drawString(75, 75, "www.understandingtutors.com")
+    canvas.setFont("Helvetica-Bold", 13)
+    canvas.setFillColor(utils.ut_green)
+    canvas.drawString(75, 55, "Maths Physics Chemistry Biology Economics")
+    canvas.setFillColor(utils.ut_purple)
+    canvas.drawString(75, 35, "English History French Spanish")
+
 def create_data_table(month_df, canvas, width, height,tutor):
     '''Creates a table for the invoice data (used for all invoices) '''
     data_for_report = [month_df.columns.to_list()] + month_df.values.tolist()
@@ -96,7 +149,72 @@ def create_data_table(month_df, canvas, width, height,tutor):
     table.wrapOn(canvas, width, height)
     table.drawOn(canvas, 75, 100)  # Adjust Y-position as needed
 
-def create_an_invoice_pdf(student, month_df, month, tutor, total_fee, cumulative_total_value, invoice_name, invoice_number, invoice_type ='hourly'):
+
+def create_data_table_pre_paid_blocks(prepaid_blocks, canvas, width, height, tutor, cumulative_total_value):
+    '''Creates a table for the invoice data (used for all invoices).'''
+
+    # filter dataframe for select headers, if df not empty:
+    if not prepaid_blocks.empty:
+        prepaid_blocks = prepaid_blocks[['Student', 'Received', 'Amount, £', '#Hours', 'Block ID']]
+
+    x_start = 75  # Start x-coordinate
+    fixed_y_top = height - 270  # Fixed top y-coordinate for the table
+
+    # Check if prepaid_blocks DataFrame is empty
+    if prepaid_blocks.empty:
+        canvas.drawString(x_start, fixed_y_top, "No blocks currently purchased.")
+        return
+
+    data_for_report = [prepaid_blocks.columns.to_list()] + prepaid_blocks.values.tolist()
+
+    # Calculate the height of the table
+    row_height = 20  # Assuming each row is 20 units high
+    table_height = len(data_for_report) * row_height  # Total height of the table
+
+    # Calculate y-coordinate for the bottom of the table
+    y_bottom = fixed_y_top - table_height
+
+    style = TableStyle([
+        ('BACKGROUND', (0, 1), (-1, -1), colors.white),
+        ('BACKGROUND', (0, 0), (-1, 0), utils.ut_green),  # Header row background
+        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),  # Bold font for header
+        ('BOX', (0, 0), (-1, -1), 1, colors.black),  # Black border around the table
+        ('LINEBELOW', (0, 0), (-1, -1), 0.5, colors.black),  # Lines below each row
+    ])
+
+    table = Table(data_for_report, colWidths=[100] * len(prepaid_blocks.columns), style=style)
+    table.wrapOn(canvas, width, table_height)
+    table.drawOn(canvas, x_start, y_bottom)
+
+    canvas.drawString(x_start, y_bottom - 20, f"Total Lessons Used: {cumulative_total_value} hours")
+
+    #calculate balance:
+    prepaid_blocks['#Hours'] = pd.to_numeric(prepaid_blocks['#Hours'], errors='coerce')
+    total_blocks_paid = prepaid_blocks['#Hours'].sum()
+    balance =  total_blocks_paid - cumulative_total_value
+
+    if balance < 0:
+
+        canvas.setFillColor(utils.ut_rouge)
+
+        canvas.drawString(x_start, y_bottom - 38, f"Remaining Lesson: {balance} hours - Please top up!")
+
+    elif balance < 5:
+
+        canvas.setFillColor(utils.ut_yellow)
+
+        canvas.drawString(x_start, y_bottom - 38, f"Remaining Lesson: {balance} hours - Low balance!")
+
+    else:
+        canvas.setFillColor(utils.ut_green)
+
+        canvas.drawString(x_start, y_bottom - 38, f"Remaining Lesson: {balance} hours")
+
+
+
+
+
+def create_an_invoice_pdf(student, month_df, month, tutor, total_fee, cumulative_total_value, invoice_name, invoice_number, prepaid_blocks, invoice_type ='hourly'):
     '''Creates a single PDF invoice based on the given data'''
 
     #TODO adapt this for pre paid invoices to utilise the cumulative total
@@ -109,15 +227,43 @@ def create_an_invoice_pdf(student, month_df, month, tutor, total_fee, cumulative
     canv = canvas.Canvas(invoice_pdf_path, pagesize=letter)
     width, height = letter
 
-    # Draw static elements
-    draw_static_elements(canv, width, height, student, tutor, total_fee, month,invoice_number, invoice_type)
 
-    # Draw data table
-    create_data_table(month_df, canv, width, height, tutor)
+    if invoice_type == 'prepaid':
 
-    # Save the PDF
-    canv.save()
-    print(f"{invoice_type} PDF generated: {invoice_name}")
+
+        # Draw static elements; customised to pre-paid
+        draw_static_elements_pre_paid(canv, width, height, student, tutor, total_fee, month,invoice_number, invoice_type)
+
+
+        # draw table with pre-paid blocks
+        create_data_table_pre_paid_blocks(prepaid_blocks, canv, width, height, tutor, cumulative_total_value)
+
+
+        # Draw data table
+        create_data_table(month_df, canv, width, height, tutor)
+
+        # Save the PDF
+        canv.save()
+        print(f"{invoice_type} PDF generated: {invoice_name}")
+
+    else:
+        # Draw static elements
+        draw_static_elements(canv, width, height, student, tutor, total_fee, month, invoice_number, invoice_type)
+
+        # Draw data table
+        create_data_table(month_df, canv, width, height, tutor)
+
+        # Save the PDF
+        canv.save()
+        print(f"{invoice_type} PDF generated: {invoice_name}")
+
+
+
+
+
+
+
+
 
 
 def process_invoice_data(student, students_invoices_dfs, invoice_type):
@@ -185,6 +331,7 @@ def generate_invoice_pdfs(all_invoice_data, student, invoice_type):
     Will maange all the 'meta-data' needed for excetuion/ imnitlization of a single invoice creation (using create_an_invoice_pdf)'''
 
 
+    #unload the data
     invoice_data = all_invoice_data['invoices']
     prepaid_blocks = all_invoice_data.get('prepaid_blocks', pd.DataFrame())  # Safe access as might be empty
 
@@ -195,8 +342,6 @@ def generate_invoice_pdfs(all_invoice_data, student, invoice_type):
 
         cumulative_total_value += data['total_value']
 
-        if invoice_type == 'prepaid':
-            print(student, month, cumulative_total_value)
 
         create_an_invoice_pdf(student,
                               data['month_df'],
@@ -206,6 +351,7 @@ def generate_invoice_pdfs(all_invoice_data, student, invoice_type):
                               cumulative_total_value,
                               data['invoice_name'],
                               data['invoice_number'],
+                              prepaid_blocks,
                               invoice_type)
 
 

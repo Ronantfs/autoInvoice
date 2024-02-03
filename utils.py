@@ -26,6 +26,7 @@ ut_green = hex_to_reportlab_color("#34745a")
 ut_lgreen = hex_to_reportlab_color("#95d0b8")
 ut_yellow = hex_to_reportlab_color("#e3ba44")
 ut_purple = hex_to_reportlab_color("#5151b4")
+ut_rouge = hex_to_reportlab_color("#900C3F")
 
 
 def generate_invoice_number():
