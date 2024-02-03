@@ -1,3 +1,5 @@
+Schema of arhciteture: https://lucid.app/documents/view/b2986b32-52f2-4eb0-b249-db54e6ec796b
+
 # autoInvoice Project
 
 **Aims of project:
