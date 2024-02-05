@@ -1,8 +1,6 @@
 **Schema of arhciteture: https://lucid.app/documents/view/b2986b32-52f2-4eb0-b249-db54e6ec796b**
 
-# autoInvoice Project
-
-# Tutoring Invoice Management System Documentation
+# autoInvoice Documentation: A Tutoring Invoice Management System 
 
 ## Introduction
 This documentation provides an overview of the Tutoring Invoice Management System. The system is designed to manage and generate invoices for tutoring services, integrating with Google Sheets and generating PDF invoices - hopeufully streamlining the process of managing and generating invoices for invoice basedservices.
