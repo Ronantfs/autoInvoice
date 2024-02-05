@@ -1,41 +1,62 @@
-Schema of arhciteture: https://lucid.app/documents/view/b2986b32-52f2-4eb0-b249-db54e6ec796b
+**Schema of arhciteture: https://lucid.app/documents/view/b2986b32-52f2-4eb0-b249-db54e6ec796b**
 
 # autoInvoice Project
 
-**Aims of project:
-**
-1) Develop an internal tool for UnderstadningTutors to manage their invoicing of parents (time for this is is main marginal cost of operations)
-2) In doing so, prototype a porduct for my future Saas start up.
+# Tutoring Invoice Management System Documentation
 
-**File 1)'Add new tutor hours:**
+## Introduction
+This documentation provides an overview of the Tutoring Invoice Management System. The system is designed to manage and generate invoices for tutoring services, integrating with Google Sheets and generating PDF invoices - hopeufully streamlining the process of managing and generating invoices for invoice basedservices.
 
-Script manages and invoices tutoring lessons using Google Sheets:
+Invoices can either be done on an hourly basis or with pre-paid lesson credits.  
 
-1. **Setup**: Authenticates with Google Sheets using `gspread` and a service account- authentication details imported from json:
-2. **Reading Sheets**: Master sheet, "UT_Master_Invoice_Data_Base", containing central repo of all past tutor hours ; "Lesson Log" sheets are live cloud google sheets that tutors log their hours into.  All google sheets converted to DFs.
-4. **Updating Master Database**: Adds new lessons to the Master Data Base sheet, identifying new entries using 'Unique ID'.
-5. **Invoice Processing**: Extracts invoice data, identifying unpaid invoices per student and month; for use in linked scripts (see below)
+## Project Structure
+The project consists of several Python scripts, each serving a specific function in the overall invoice management process:
 
-**Note!**: To update the master db, script clears existing data in the Master Data Base sheet before updating, so handle with care to avoid data loss.
-**TODO** add export of master database tot an export.
+### main.py (Described Separately)
+Central script orchestrating the control flow of the application.
 
+### Invoice Data Processing and Google Sheets Integration (`tutor_hours.py`)
+1) Handles data centralisation on Google Sheets to central cloud database. 
+2) Parses and compiles central cloud data-base to local memory (for further usage)  
 
-**File 2) Invoice_csv_to_pdf:**
+### Invoice PDF Generation (`generate_invoices.py`)
+-Generates detailed PDF invoices based on the processed data.
+-Hourly and 'pre-paid' invoice items processed seperately. (see schema of arhciteture)
 
-Takes invoice data - identified as unpaid - from _Add new tutors hours script_ and generates PDF invoices for tutoring services + exports invoice records for databasing
+### Ancillary Scripts (`constants.py, utils.py, data_checks.py`)
+For maintainability and organisation, ancillary scripts are used.
 
-**Invoice Generation**: Processes unpaid invoices for each student, creating a detailed PDF invoice with a data table and branding elements.
-**Data Processing**: Compiles invoice records into a DataFrame, then exports it as a CSV file for record-keeping.
-**Execution**: The `main()` function orchestrates the process, using data from a previously run script (`add_new_tutor_hours`).
+## Setup and Configuration
+### Prerequisites
+- Python 3.9
+- Libraries: `pandas`, `gspread`, `numpy`, `reportlab`
 
+### Google Sheets API Setup
+1. Enable Google Sheets API in Google Cloud Platform.
+2. Create a service account and download the JSON key file.
+3. Share your Google Sheets with the service account email.
 
-**File 3) update invoice recrds** 
+## Usage Guide
+1. **Update Google Sheets Credentials**: Place your Google Sheets JSON key file in the project directory and reference it in `constants.py`.
+2. **Run main.py**: This script will interact with other modules to perform tasks like data retrieval, processing, and invoice generation.
 
-Using google API, adds new invoice records from _invoice_csv_to_pdf_ script to master file on google drive , via google sheets API.
+## Function Reference
+Each module contains several functions, key among them are: [WIP]
 
-Invoice data for a given sutdent and month are generated using a 'Permanent ID
+### tutor_hours.py.py
+- `get_master_data()`: Fetches and returns master data from a Google Sheet.
+- `get_all_tutors_lesson_log_df(list_of_ut_tutors)`: Aggregates multiple tutors' lesson logs.
+- `add_new_tutor_lessons_to_master(...)`: Updates the master data sheet with new lessons.
 
+### generate_invoices.py
+- `draw_static_elements(...)`: Draws static elements on the PDF.
+- `create_data_table(...)`: Creates a table for the invoice data.
+- `create_an_invoice_pdf(...)`: Main function to create a single PDF invoice.
 
-**Key external links:**
+## Refactoring Notes
+The project is an ongoing WIP. 
+-----------------------------------------------------
+
+**Useful external links:**
 How to set up google API credentials: https://mljar.com/blog/authenticate-python-google-sheets-service-account-json-credentials/#:~:text=Creating%20JSON%20file%20with%20credentials,Download%20JSON%20file%20with%20credentials
 
