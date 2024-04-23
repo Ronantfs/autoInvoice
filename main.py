@@ -1,16 +1,11 @@
 #TODO refector this project to use the new structure where control flow is in main.py and functions are in other files
 import pandas as pd
-import gspread
-import numpy as np
 
 import tutor_hours
 import generate_invoices
-#import update_invoice_records
 import constants
 import utils
 import data_checks
-
-
 
 #fucntionality to update invoice records:
 

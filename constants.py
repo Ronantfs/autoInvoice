@@ -1,18 +1,21 @@
 import pandas as pd
 
 list_of_ut_tutors = [
-    #'Ronan',
-    #'Aarif',
-   # 'Will',
-    #'Nikhil',
-   # 'Gabba',
+    'Aarif',
     'Danish',
+    'Finn',
+'Gabba',
+'Misc',
+'Nikhil',
+    'Ronan',
+    'Will',
+    'Louis'
 ]
 
 google_sa_json = "utautoinvoicing_service_account.json"
 
 INVOICES_FOLDER_PATH = r'C:\Repositories\code_repos\UT\autoInvoice\invoices'
-LOGO_PATH = r"C:\Repositories\code_repos\UT\autoinvoice\logo sbg.png"
+LOGO_PATH = r"C:\Repositories\code_repos\UT\autoinvoice\static\logo sbg.png"
 
 
 #invoice_records_csv_file_path = r'C:\Repositories\code_repos\UT\autoinvoice\invoice_records_archive'
