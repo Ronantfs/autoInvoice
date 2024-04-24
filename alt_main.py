@@ -1,6 +1,6 @@
 '''alterntive control flow script to main.py to be run from command line, without user input, so can automate'''
 import argparse
-import data_checks
+from modules import data_checks
 from main import InvoiceManager
 
 def main(mode):
