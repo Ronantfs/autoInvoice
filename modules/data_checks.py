@@ -87,6 +87,18 @@ def check_student_tutor_names_unique():
     return True
 
 
+def check_tutor_lesson_log_set_up():
+    '''defines standards for core feature requirements of a tutor lesson log file'''
+
+    #{sheets: [cols]}
+    sheet_requirements = {
+        "Confirm Hours": ["Tutor","Date", "MMMM YY", "Locked In?"],
+        "Lesson Log": ["Student", "Lesson Date", "Lesson Length(Hours)", " Hourly rate(£ / hr)", "Lesson Fee", "Month", "Tutor Month Match", "Tutor", "Unique ID"],
+        "Tutor-Student Contracts": []}
+
+    def confirmHoursCheck():
+        '''check for required columns in Confirm Hours sheet'''
+        #check sheet exists
 
 
 

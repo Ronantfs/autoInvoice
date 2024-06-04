@@ -12,37 +12,69 @@ def get_master_data():
     # Open the Master Data Base Google Sheet
     UT_Master_Data_Base_GS = sa.open("UT_Master_Invoice_Data_Base_Doc")
     UT_Master_Data_Base_Sheet = UT_Master_Data_Base_GS.worksheet("Master Data Base")
+    UT_Master_Confirmed_Hours_Sheet = UT_Master_Data_Base_GS.worksheet("Hours Confirmed")
 
     # Load data from the Master Data Base sheet
     mastersheet_data = UT_Master_Data_Base_Sheet.get_all_values()
     mastersheet_data_df = pd.DataFrame(mastersheet_data[1:], columns=mastersheet_data[0]).dropna(subset=['Student'])
 
-    return (mastersheet_data_df, UT_Master_Data_Base_Sheet)
+    # Load data from the UT confirmed hours master data sheet
+    UT_Confirmed_Hours = UT_Master_Confirmed_Hours_Sheet.get_all_values()
+    UT_Master_Confirmed_Hours_df = pd.DataFrame(UT_Confirmed_Hours[1:], columns=UT_Confirmed_Hours[0])
+
+
+    return (mastersheet_data_df, UT_Master_Data_Base_Sheet, UT_Master_Confirmed_Hours_df, UT_Master_Confirmed_Hours_Sheet)
 
 # Open the Tutor Log Test Google Sheet
 def get_all_tutors_lesson_log_df(list_of_ut_tutors):
     '''function that gets all tutors lesson logs and returns as single df'''
-    # Initialize an empty dataframe
+    # Initialize  empty lists
     all_tutors_lesson_log_dfs_list = []
+    all_tutors_confirmed_hours = []
 
     #setup service account
     for tutor in list_of_ut_tutors:
         print(f'getting {tutor} hours...')
-        # Get tutor lesson log sheet and add to list
+
+        #opne tutors Lesson Log Google Sheet Doc
         file_name = f'{tutor} Lesson Log'
         tutorLogTestSheet = sa.open(file_name)
+
+        #todo CHECK LESSON LOG HERE
+        # if error: ....
+
+        # Get tutor lesson log sheet and add to list
         wks = tutorLogTestSheet.worksheet("Lesson Log")
         log_data = wks.get_all_values()
         log_data_df = pd.DataFrame(log_data[1:], columns=log_data[0])
+        #process:
         log_data_df['Student'].replace('', pd.NA, inplace=True)
         log_data_df = log_data_df.dropna(subset=['Student'])
+        #add to list
         all_tutors_lesson_log_dfs_list.append(log_data_df)
+
+        # Get tutor confirmed hours sheet and add to list
+        wks = tutorLogTestSheet.worksheet("Confirm Hours")
+        confirmed_hours = wks.get_all_values()
+        confirmed_hours_df = pd.DataFrame(confirmed_hours[1:], columns=confirmed_hours[0])
+        #Process:
+        # add "Tutor column" and populate with tutor name;
+        confirmed_hours_df['Tutor'] = tutor
+        #remove rows where "Locked In?" column empty:
+        confirmed_hours_df['Locked In? '].replace('', pd.NA, inplace=True)
+        confirmed_hours_df = confirmed_hours_df.dropna(subset=['Locked In? '])
+        #add to list
+        all_tutors_confirmed_hours.append(confirmed_hours_df)
 
     # Concatenate all dataframes in the list
     all_tutors_lesson_log_df = pd.concat(all_tutors_lesson_log_dfs_list, ignore_index=True)
     all_tutors_lesson_log_df.reset_index(drop=True, inplace=True)
 
-    return all_tutors_lesson_log_df
+    # Concatenate all confirmed hours dataframes in the list
+    all_tutors_confirmed_hours_df = pd.concat(all_tutors_confirmed_hours, ignore_index=True)
+    all_tutors_confirmed_hours_df.reset_index(drop=True, inplace=True)
+
+    return all_tutors_lesson_log_df, all_tutors_confirmed_hours_df
 
 def add_new_tutor_lessons_to_master(mastersheet_data_df, all_tutors_lesson_log_df, UT_Master_Data_Base_Sheet):
     # Append new (unique) rows to the Master Data Base dataframe
@@ -63,6 +95,27 @@ def add_new_tutor_lessons_to_master(mastersheet_data_df, all_tutors_lesson_log_d
     # Update the Master Data Base sheet with the new data
     UT_Master_Data_Base_Sheet.update('A1', updated_master_data_to_upload)
     print('New Hours Added')
+
+def pull_confirmed_hours_to_master(all_tutors_confirmed_hours_df,UT_Confirmed_Hours_df, UT_Master_Confirmed_Hours_Sheet):
+# Append new (unique) rows to the Master Confirmed Hours dataframe
+    # Convert 'Unique ID' to string for comparison (if necessary)
+
+    UT_Confirmed_Hours_df['Unique ID'] = UT_Confirmed_Hours_df['Unique ID'].astype(str)
+    all_tutors_confirmed_hours_df['Unique ID'] = all_tutors_confirmed_hours_df['Unique ID'].astype(str)
+
+    new_rows = all_tutors_confirmed_hours_df[~all_tutors_confirmed_hours_df['Unique ID'].isin(UT_Confirmed_Hours_df['Unique ID'])]
+    updated_UT_Confirmed_Hours_df = pd.concat([UT_Confirmed_Hours_df, new_rows])
+
+    # Convert the updated dataframe to a list of lists for uploading to Google Sheets
+    updated_confirmed_hours_to_upload = [updated_UT_Confirmed_Hours_df.columns.tolist()] + updated_UT_Confirmed_Hours_df.values.tolist()
+
+    # Clear the existing data in the Master Confirmed Hours sheet, without clearing the headers
+    UT_Master_Confirmed_Hours_Sheet.clear() #TODO DON'T CLEAR HEADERS
+
+    # Update the Master Confirmed Hours sheet with the new data
+    UT_Master_Confirmed_Hours_Sheet.update('A1', updated_confirmed_hours_to_upload)
+    print('New Confirmed Hours Added')
+
 
 
 def process_master_data_to_df():

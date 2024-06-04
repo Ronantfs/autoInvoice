@@ -1,4 +1,3 @@
-#TODO refector this project to use the new structure where control flow is in main.py and functions are in other files
 import pandas as pd
 
 from modules import tutor_hours
@@ -22,17 +21,25 @@ class InvoiceManager:
 
 
     def update_invoice_records(self):
-        # invoice records
-        all_tutors_lesson_log_df = tutor_hours.get_all_tutors_lesson_log_df(constants.list_of_ut_tutors)
+        # invoice records and confirmed hours
+        all_tutors_lesson_log_df, all_tutors_confirmed_hours_df = tutor_hours.get_all_tutors_lesson_log_df(constants.list_of_ut_tutors)
         # master data
         mastersheet_data = tutor_hours.get_master_data()
-        mastersheet_data_df = mastersheet_data[0]
+        # master hour logs
+        mastersheet_lesson_log_data_df = mastersheet_data[0]
         UT_Master_Data_Base_Sheet = mastersheet_data[1]
+        # master confirmed hours
+        UT_Master_Confirmed_Hours_df = mastersheet_data[2]
+        UT_Master_Confirmed_Hours_Sheet = mastersheet_data[3]
 
-        #update_master_record
-        tutor_hours.add_new_tutor_lessons_to_master(mastersheet_data_df,
+
+        #update_master_record lesson hours
+        tutor_hours.add_new_tutor_lessons_to_master(mastersheet_lesson_log_data_df,
                                                      all_tutors_lesson_log_df,
                                                      UT_Master_Data_Base_Sheet)
+
+        #update_master_record confirmed hours ...
+        tutor_hours.pull_confirmed_hours_to_master(all_tutors_confirmed_hours_df,UT_Master_Confirmed_Hours_df, UT_Master_Confirmed_Hours_Sheet)
 
     def compile_unpaid_monthly_records(self):
         '''Sets self.all_students_unpaid_monthly_dfs to a df of all unpaid records:

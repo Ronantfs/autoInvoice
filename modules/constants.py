@@ -9,7 +9,8 @@ list_of_ut_tutors = [
 'Nikhil',
     'Ronan',
     'Will',
-    'Louis'
+    'Louis',
+    'Rosa'
 ]
 
 google_sa_json = "utautoinvoicing_service_account.json"
